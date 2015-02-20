@@ -1,36 +1,41 @@
 #!/usr/bin/env python
 import sys
 from PyQt4 import QtCore, QtGui
-from random import randrange
-class Country:
-	def __init__(self,country):
-		self.country=country
-		
+from country import Country
+from country import Flagcolor
+
 class Widget(QtGui.QWidget):
+	"""het werkt wel als je de widget even minimaliseert en dan weer groot maakt, dan verandert de kleur van de vlag"""
 	def __init__(self,country,parent=None):
 		
 		super(Widget,self).__init__(parent)
 		
-		
-	
-		label = QtGui.QLabel(self)
 		self.combo = QtGui.QComboBox()
 		self.combo.addItems([i.country for i in country])
-		self.color=FlagColor()
-		
 		grid=QtGui.QGridLayout()
 		grid.addWidget(self.combo,1,0)
 		self.setLayout(grid)
+		self.connect(self.combo, QtCore.SIGNAL("currentIndexChanged(int)"),self.updateUI)
+		self.setGeometry(300,300,250,150)
+	
 		self.show()
+		self.country=Country(self)
 		
-class Flagcolor(QtGui.QColor):
-	def __init__(self):
-		self.color=QtGui.QColor()
-		self.color.setRed(randrange(0,256))
-		self.color.setGreen(randrange(0,256))
-		self.color.setBlue(randrange(0,256))
-		return self.color
+	def paintEvent(self, event):
+
+		qp = QtGui.QPainter()
+		qp.begin(self)
+		self.drawRectangle(qp)
+		qp.end()
+        
+	def drawRectangle(self, qp):
+		qp.setBrush(self.country.color)
+		qp.drawRect(10, 10,20,20)	
 		
+	def updateUI(self):
+		self.from_=unicode(self.combo.currentText())
+		self.country=Country(self.from_)
+
 
 def getcountries():
 	countries = []
